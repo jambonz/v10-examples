@@ -4,7 +4,7 @@ A collection of TypeScript example applications demonstrating the [jambonz](http
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 22+
 - A jambonz instance (v10+)
 - Speech provider credentials configured in the jambonz portal (as needed per example)
 
