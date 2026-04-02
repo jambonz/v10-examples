@@ -1,3 +1,11 @@
 {
-  "snyk.advanced.autoSelectOrganization": true
+  "snyk.advanced.autoSelectOrganization": true,
+  "mcp": {
+    "servers": {
+      "jambonz": {
+        "type": "streamable-http",
+        "url": "https://mcp-server.jambonz.app/mcp"
+      }
+    }
+  }
 }
