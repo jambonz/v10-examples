@@ -1,0 +1,17 @@
+{
+  "name": "@jambonz-examples/s2s-deepgram",
+  "version": "1.0.0",
+  "description": "Deepgram speech-to-speech voice agent",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.1.28",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

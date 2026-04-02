@@ -1,0 +1,17 @@
+{
+  "name": "@jambonz-examples/pipeline-speechmatics-rime",
+  "version": "1.0.0",
+  "description": "Pipeline voice agent: Speechmatics STT, Rime TTS",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.1.28",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

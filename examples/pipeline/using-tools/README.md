@@ -1,0 +1,45 @@
+# pipeline/using-tools
+
+Pipeline voice agent with tool calling, using Deepgram STT and Cartesia TTS over WebSocket transport.
+
+Demonstrates how to define tools in `llmOptions.tools` and handle tool calls via `toolHook`. Includes a `get_weather` tool that fetches real-time weather data from the [Open-Meteo API](https://open-meteo.com/).
+
+Demonstrates:
+- Defining tool schemas in `llmOptions.tools`
+- Handling tool calls via the `toolHook` callback
+- Returning tool results with `session.sendToolOutput()`
+- Async tool execution (geocoding + weather API calls)
+- Selectable LLM vendor (OpenAI or Anthropic) via application variables
+
+## Setup
+
+```bash
+npm install
+```
+
+## Application Variables
+
+Configured in the jambonz portal and passed via `session.data.env_vars`:
+
+| Variable         | Required | Default | Description |
+|------------------|----------|---------|-------------|
+| `LLM_MODEL`     | No       | `gpt-5.4-mini` | LLM model (OpenAI or Anthropic) |
+| `CARTESIA_VOICE` | No       | `9626c31c-...` | Cartesia voice ID |
+| `SYSTEM_PROMPT`  | No       | *(provided)* | System prompt for the voice agent |
+
+## Environment Variables
+
+| Variable    | Default | Description |
+|-------------|---------|-------------|
+| `PORT`      | `3000`  | Port the WebSocket server listens on |
+| `LOG_LEVEL` | `info`  | Pino log level (debug, info, warn, error) |
+
+## Running
+
+```bash
+npm start
+```
+
+Configure your jambonz application to use the WebSocket URL `ws://your-server:3000/`.
+
+Note: Deepgram, Cartesia, and LLM provider credentials should be configured in the jambonz portal under speech provider settings. The Open-Meteo weather API is free and requires no authentication.

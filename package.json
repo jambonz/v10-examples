@@ -1,0 +1,31 @@
+{
+  "name": "jambonz-examples",
+  "version": "1.0.0",
+  "description": "A collection of jambonz example applications using @jambonz/sdk",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "examples/*/*"
+  ],
+  "scripts": {
+    "lint": "eslint examples/",
+    "lint:fix": "eslint examples/ --fix"
+  },
+  "keywords": [
+    "jambonz",
+    "voip",
+    "telephony",
+    "voice",
+    "ivr",
+    "cpaas"
+  ],
+  "author": "jambonz",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-promise": "^7.0.0",
+    "globals": "^15.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

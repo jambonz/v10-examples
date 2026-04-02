@@ -1,0 +1,17 @@
+{
+  "name": "@jambonz-examples/rest-api-create-call",
+  "version": "1.0.0",
+  "description": "Create an outbound call using the jambonz REST API",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/create-call.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.1.28",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

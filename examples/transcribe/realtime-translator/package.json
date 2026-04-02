@@ -1,0 +1,18 @@
+{
+  "name": "@jambonz-examples/transcribe-realtime-translator",
+  "version": "1.0.0",
+  "description": "Real-time call translation using STT, Google Translate, and TTS",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@google-cloud/translate": "^8.0.0",
+    "@jambonz/sdk": "^0.1.28",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}
