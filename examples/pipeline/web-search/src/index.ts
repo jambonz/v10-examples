@@ -23,23 +23,30 @@ const envVars = {
     description: 'Cartesia voice ID',
     default: '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc',
   },
+  TAVILY_API_KEY: {
+    type: 'string' as const,
+    description: 'Tavily API key for web search',
+    required: true,
+    obscure: true,
+  },
   SYSTEM_PROMPT: {
     type: 'string' as const,
     description: 'System prompt for the voice agent',
     uiHint: 'textarea' as const,
     default: [
-      'You are a helpful voice AI assistant.',
+      'You are a helpful voice AI assistant with web search capabilities.',
       'The user is interacting with you via voice,',
       'even if you perceive the conversation as text.',
-      'You eagerly assist users with their questions',
-      'by providing information from your extensive knowledge.',
+      'You can search the web for current information using the web_search tool.',
+      'When asked about recent events, news, or anything that may require up-to-date data,',
+      'use the web_search tool to find accurate information.',
       'Your responses are concise, to the point,',
       'and use natural spoken English with proper punctuation.',
       'Never use markdown, bullet points, numbered lists,',
       'emojis, asterisks, or any special formatting.',
       'You are curious, friendly, and have a sense of humor.',
       'When the conversation begins,',
-      'greet the user in a helpful and friendly manner.',
+      'greet the user and let them know you can search the web.',
     ].join(' '),
   },
   NOISE_ISOLATION: {
@@ -56,6 +63,21 @@ const envVars = {
   },
 };
 
+const webSearchTool = {
+  name: 'web_search',
+  description: 'Search the web for current information on a given topic.',
+  parameters: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'The search query',
+      },
+    },
+    required: ['query'],
+  },
+};
+
 const port = parseInt(process.env.PORT || '3000', 10);
 const server = http.createServer();
 const makeService = createEndpoint({ server, port, envVars });
@@ -68,12 +90,51 @@ svc.on('session:new', (session) => {
 
   const voice = session.data.env_vars?.CARTESIA_VOICE || envVars.CARTESIA_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
+  const tavilyApiKey = session.data.env_vars?.TAVILY_API_KEY;
   const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
+  });
+
+  session.on('/tool-call', async(evt: Record<string, unknown>) => {
+    const { tool_call_id, name, arguments: args } = evt as {
+      tool_call_id: string;
+      name: string;
+      arguments: Record<string, string>;
+    };
+    log.info({ name, args }, 'tool call');
+
+    if (name !== 'web_search') {
+      session.sendToolOutput(tool_call_id, `Unknown tool: ${name}`);
+      return;
+    }
+
+    try {
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: tavilyApiKey,
+          query: args.query,
+          max_results: 3,
+          search_depth: 'basic',
+        }),
+      });
+      const data = await res.json() as {
+        results?: { title: string; content: string }[];
+      };
+      const results = (data.results || [])
+        .map((r) => `${r.title}: ${r.content}`)
+        .join('\n');
+
+      session.sendToolOutput(tool_call_id, results || 'No results found.');
+    } catch (err) {
+      log.error(err, 'web search failed');
+      session.sendToolOutput(tool_call_id, `Error performing web search: ${err}`);
+    }
   });
 
   session.on('/pipeline-complete', (evt: Record<string, unknown>) => {
@@ -99,8 +160,10 @@ svc.on('session:new', (session) => {
           messages: [
             { role: 'system', content: systemPrompt },
           ],
+          tools: [webSearchTool],
         },
       },
+      toolHook: '/tool-call',
       bargeIn: { enable: true },
       turnDetection: 'krisp',
       earlyGeneration,
@@ -111,4 +174,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/web-search listening');

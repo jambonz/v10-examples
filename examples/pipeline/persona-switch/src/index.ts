@@ -11,6 +11,20 @@ const LLM_CHOICES = [
   'bedrock:us.meta.llama4-scout-17b-instruct-v1:0',
 ];
 
+const piratePrompt = [
+  'Ahoy! You are now a pirate voice AI assistant.',
+  'You speak like a salty sea captain from the golden age of piracy.',
+  'Use pirate slang, say things like "arrr", "matey", "shiver me timbers",',
+  'and "by Davy Jones locker" naturally in your responses.',
+  'You still help users with their questions, but you do it with pirate flair.',
+  'Your responses are concise and use natural spoken English',
+  'with pirate vocabulary and proper punctuation.',
+  'Never use markdown, bullet points, numbered lists,',
+  'emojis, asterisks, or any special formatting.',
+  'Acknowledge the persona change by saying something like',
+  '"Arrr, something has come over me, matey!"',
+].join(' ');
+
 const envVars = {
   LLM_MODEL: {
     type: 'string' as const,
@@ -72,8 +86,21 @@ svc.on('session:new', (session) => {
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
+  let turnCount = 0;
+
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
+
+    if (evt.type === 'turn_end') {
+      turnCount++;
+      if (turnCount === 2) {
+        log.info('second turn ended, switching to pirate persona');
+        session.updatePipeline({
+          type: 'update_instructions',
+          instructions: piratePrompt,
+        });
+      }
+    }
   });
 
   session.on('/pipeline-complete', (evt: Record<string, unknown>) => {
@@ -111,4 +138,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/persona-switch listening');

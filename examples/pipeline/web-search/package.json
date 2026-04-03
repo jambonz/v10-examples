@@ -1,7 +1,7 @@
 {
-  "name": "@jambonz-examples/pipeline-using-mcp-server",
+  "name": "@jambonz-examples/pipeline-web-search",
   "version": "1.0.0",
-  "description": "Pipeline voice agent with MCP server for live sports scores",
+  "description": "Pipeline voice agent with Tavily web search tool",
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts"

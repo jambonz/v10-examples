@@ -23,6 +23,12 @@ const envVars = {
     description: 'Cartesia voice ID',
     default: '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc',
   },
+  TAVILY_API_KEY: {
+    type: 'string' as const,
+    description: 'Tavily API key for web search',
+    required: true,
+    obscure: true,
+  },
   SYSTEM_PROMPT: {
     type: 'string' as const,
     description: 'System prompt for the voice agent',
@@ -56,6 +62,21 @@ const envVars = {
   },
 };
 
+const webSearchTool = {
+  name: 'web_search',
+  description: 'Search the web for current information on a given topic.',
+  parameters: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'The search query',
+      },
+    },
+    required: ['query'],
+  },
+};
+
 const port = parseInt(process.env.PORT || '3000', 10);
 const server = http.createServer();
 const makeService = createEndpoint({ server, port, envVars });
@@ -68,12 +89,78 @@ svc.on('session:new', (session) => {
 
   const voice = session.data.env_vars?.CARTESIA_VOICE || envVars.CARTESIA_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
+  const tavilyApiKey = session.data.env_vars?.TAVILY_API_KEY;
   const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
+  let turnCount = 0;
+
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
+
+    if (evt.type === 'turn_end') {
+      turnCount++;
+      if (turnCount === 2) {
+        log.info('second turn ended, injecting web_search tool');
+        session.updatePipeline({
+          type: 'update_tools',
+          tools: [webSearchTool],
+        });
+        session.updatePipeline({
+          type: 'inject_context',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                'You now have access to a web_search tool.',
+                'You can use it to search the web for current information',
+                'when users ask about recent events, news, or anything',
+                'that may require up-to-date data.',
+              ].join(' '),
+            },
+          ],
+        });
+      }
+    }
+  });
+
+  session.on('/tool-call', async(evt: Record<string, unknown>) => {
+    const { tool_call_id, name, arguments: args } = evt as {
+      tool_call_id: string;
+      name: string;
+      arguments: Record<string, string>;
+    };
+    log.info({ name, args }, 'tool call');
+
+    if (name !== 'web_search') {
+      session.sendToolOutput(tool_call_id, `Unknown tool: ${name}`);
+      return;
+    }
+
+    try {
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: tavilyApiKey,
+          query: args.query,
+          max_results: 3,
+          search_depth: 'basic',
+        }),
+      });
+      const data = await res.json() as {
+        results?: { title: string; content: string }[];
+      };
+      const results = (data.results || [])
+        .map((r) => `${r.title}: ${r.content}`)
+        .join('\n');
+
+      session.sendToolOutput(tool_call_id, results || 'No results found.');
+    } catch (err) {
+      log.error(err, 'web search failed');
+      session.sendToolOutput(tool_call_id, `Error performing web search: ${err}`);
+    }
   });
 
   session.on('/pipeline-complete', (evt: Record<string, unknown>) => {
@@ -101,6 +188,7 @@ svc.on('session:new', (session) => {
           ],
         },
       },
+      toolHook: '/tool-call',
       bargeIn: { enable: true },
       turnDetection: 'krisp',
       earlyGeneration,
@@ -111,4 +199,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/dynamic-tools listening');

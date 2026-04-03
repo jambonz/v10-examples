@@ -4,15 +4,19 @@ import { createEndpoint } from '@jambonz/sdk/websocket';
 
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
+const LLM_CHOICES = [
+  'openai:gpt-4.1-mini',
+  'anthropic:claude-sonnet-4-6',
+  'google:gemini-2.5-flash-lite-preview-06-17',
+  'bedrock:us.meta.llama4-scout-17b-instruct-v1:0',
+];
+
 const envVars = {
   LLM_MODEL: {
     type: 'string' as const,
-    description: 'LLM model to use',
-    enum: [
-      'gpt-5.4-mini', 'gpt-5.4-nano', 'gpt-5.4', 'gpt-4.1-mini', 'gpt-4.1',
-      'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-opus-4-6',
-    ],
-    default: 'gpt-5.4-mini',
+    description: 'LLM vendor and model (vendor:model)',
+    enum: LLM_CHOICES,
+    default: 'openai:gpt-4.1-mini',
   },
   CARTESIA_VOICE: {
     type: 'string' as const,
@@ -38,6 +42,18 @@ const envVars = {
       'with live football scores and fixtures.',
     ].join(' '),
   },
+  NOISE_ISOLATION: {
+    type: 'string' as const,
+    description: 'Noise isolation mode (off, krisp, or rnnoise)',
+    enum: ['off', 'krisp', 'rnnoise'],
+    default: 'off',
+  },
+  EARLY_GENERATION: {
+    type: 'string' as const,
+    description: 'Enable speculative LLM preflight for lower latency',
+    enum: ['on', 'off'],
+    default: 'on',
+  },
 };
 
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -47,10 +63,14 @@ const makeService = createEndpoint({ server, port, envVars });
 const svc = makeService({ path: '/' });
 svc.on('session:new', (session) => {
   const log = logger.child({ call_sid: session.callSid });
-  const model = session.data.env_vars?.LLM_MODEL || envVars.LLM_MODEL.default;
-  const llmVendor = model.startsWith('claude') ? 'anthropic' : 'openai';
+  const llmChoice = session.data.env_vars?.LLM_MODEL || envVars.LLM_MODEL.default;
+  const [llmVendor, model] = llmChoice.split(':');
+
   const voice = session.data.env_vars?.CARTESIA_VOICE || envVars.CARTESIA_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
+  const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
+    || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
+  const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
@@ -84,8 +104,10 @@ svc.on('session:new', (session) => {
       mcpServers: [
         { url: 'https://livescoremcp.com/sse' },
       ],
+      bargeIn: { enable: true },
       turnDetection: 'krisp',
-      earlyGeneration: true,
+      earlyGeneration,
+      ...noiseIsolation !== 'off' && { noiseIsolation },
       eventHook: '/pipeline-event',
       actionHook: '/pipeline-complete',
     })

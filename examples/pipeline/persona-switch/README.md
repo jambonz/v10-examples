@@ -1,13 +1,14 @@
-# pipeline/deepgram-cartesia
+# pipeline/persona-switch
 
-Pipeline voice agent using Deepgram STT and Cartesia TTS over WebSocket transport. The LLM vendor and model are configurable via application variables (OpenAI, Anthropic, Google, or Bedrock).
+Pipeline voice agent with mid-conversation persona change, using Deepgram STT and Cartesia TTS over WebSocket transport.
+
+Demonstrates `pipeline:update` with `update_instructions` to change the agent's system prompt during a live conversation. After the second conversational turn, the agent's persona switches from a standard assistant to a pirate character.
 
 Demonstrates:
-- The `pipeline` verb with separate STT, LLM, and TTS configuration
-- Selectable LLM vendor derived from the chosen model (4 vendors)
-- `earlyGeneration: true` for lower latency responses
-- Krisp turn detection
-- Application variables (`envVars`) for portal-configurable settings
+- `session.updatePipeline()` with `type: 'update_instructions'`
+- Replacing the system prompt mid-conversation
+- Tracking turn count via `turn_end` events
+- Selectable LLM vendor (OpenAI, Anthropic, Google, or Bedrock) via application variables
 
 ## Setup
 
@@ -23,7 +24,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 |------------------|----------|---------|-------------|
 | `LLM_MODEL`     | No       | `gpt-4.1-mini` | LLM model (OpenAI, Anthropic, Google, or Bedrock) |
 | `CARTESIA_VOICE` | No       | `9626c31c-...` | Cartesia voice ID |
-| `SYSTEM_PROMPT`  | No       | *(provided)* | System prompt for the voice agent |
+| `SYSTEM_PROMPT`  | No       | *(provided)* | Initial system prompt (switches to pirate after 2 turns) |
 
 ## Environment Variables
 

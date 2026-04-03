@@ -1,13 +1,13 @@
-# pipeline/using-mcp-server
+# pipeline/supervisor-interrupt
 
-Pipeline voice agent with an MCP server for live football scores, using Deepgram STT and Cartesia TTS over WebSocket transport.
+Pipeline voice agent with urgent message injection, using Deepgram STT and Cartesia TTS over WebSocket transport.
 
-Demonstrates how to connect external MCP servers to a pipeline. The pipeline discovers tools from the MCP server at startup and makes them available to the LLM — no inline tool definitions needed. Uses the free [LiveScore MCP server](https://livescoremcp.com/) for real-time football data.
+Demonstrates `pipeline:update` with `generate_reply` and `interrupt: true` to force the agent to deliver an urgent message. After the third agent response, the app waits 2 seconds then sends a flash sale notification that interrupts the current conversation.
 
 Demonstrates:
-- The `mcpServers` property for connecting external tool servers
-- Automatic tool discovery from MCP servers
-- A sports-focused system prompt that directs the LLM to use tools
+- `session.updatePipeline()` with `type: 'generate_reply'` and `interrupt: true`
+- Injecting urgent messages that interrupt the agent mid-conversation
+- Tracking agent response count via `agent_response` events
 - Selectable LLM vendor (OpenAI, Anthropic, Google, or Bedrock) via application variables
 
 ## Setup
@@ -41,4 +41,4 @@ npm start
 
 Configure your jambonz application to use the WebSocket URL `ws://your-server:3000/`.
 
-Note: Deepgram, Cartesia, and LLM provider credentials should be configured in the jambonz portal under speech provider settings. The LiveScore MCP server is free and requires no authentication.
+Note: Deepgram, Cartesia, and LLM provider credentials should be configured in the jambonz portal under speech provider settings.

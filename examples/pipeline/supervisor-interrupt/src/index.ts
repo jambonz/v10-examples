@@ -72,8 +72,32 @@ svc.on('session:new', (session) => {
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
+  let agentResponseCount = 0;
+
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
+
+    if (evt.type === 'agent_response') {
+      agentResponseCount++;
+      if (agentResponseCount === 3) {
+        log.info('third agent response, scheduling supervisor interrupt in 2 seconds');
+
+        setTimeout(() => {
+          log.info('sending supervisor interrupt: flash sale notification');
+          session.updatePipeline({
+            type: 'generate_reply',
+            interrupt: true,
+            user_input: [
+              'URGENT SUPERVISOR MESSAGE: Interrupt the current conversation immediately.',
+              'Inform the customer that a flash sale has just started.',
+              'All items are 50% off for the next 30 minutes.',
+              'The promo code is FLASH50.',
+              'Apologize for the interruption and share this exciting news.',
+            ].join(' '),
+          });
+        }, 2000);
+      }
+    }
   });
 
   session.on('/pipeline-complete', (evt: Record<string, unknown>) => {
@@ -111,4 +135,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/supervisor-interrupt listening');

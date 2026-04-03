@@ -38,6 +38,18 @@ const envVars = {
       'greet the user in a helpful and friendly manner.',
     ].join(' '),
   },
+  NOISE_ISOLATION: {
+    type: 'string' as const,
+    description: 'Noise isolation mode (off, krisp, or rnnoise)',
+    enum: ['off', 'krisp', 'rnnoise'],
+    default: 'off',
+  },
+  EARLY_GENERATION: {
+    type: 'string' as const,
+    description: 'Enable speculative LLM preflight for lower latency',
+    enum: ['on', 'off'],
+    default: 'on',
+  },
 };
 
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -51,6 +63,9 @@ svc.on('session:new', (session) => {
   const llmVendor = model.startsWith('claude') ? 'anthropic' : 'openai';
   const voice = session.data.env_vars?.RIME_VOICE || envVars.RIME_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
+  const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
+    || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
+  const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
@@ -80,7 +95,8 @@ svc.on('session:new', (session) => {
         },
       },
       turnDetection: 'stt',
-      earlyGeneration: true,
+      earlyGeneration,
+      ...noiseIsolation !== 'off' && { noiseIsolation },
       eventHook: '/pipeline-event',
       actionHook: '/pipeline-complete',
     })

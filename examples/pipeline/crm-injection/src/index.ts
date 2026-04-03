@@ -28,18 +28,18 @@ const envVars = {
     description: 'System prompt for the voice agent',
     uiHint: 'textarea' as const,
     default: [
-      'You are a helpful voice AI assistant.',
+      'You are a helpful sales assistant.',
       'The user is interacting with you via voice,',
       'even if you perceive the conversation as text.',
-      'You eagerly assist users with their questions',
-      'by providing information from your extensive knowledge.',
+      'You help customers with product information,',
+      'account inquiries, and purchase decisions.',
       'Your responses are concise, to the point,',
       'and use natural spoken English with proper punctuation.',
       'Never use markdown, bullet points, numbered lists,',
       'emojis, asterisks, or any special formatting.',
-      'You are curious, friendly, and have a sense of humor.',
+      'You are professional, friendly, and attentive.',
       'When the conversation begins,',
-      'greet the user in a helpful and friendly manner.',
+      'greet the user and ask how you can help them today.',
     ].join(' '),
   },
   NOISE_ISOLATION: {
@@ -72,8 +72,37 @@ svc.on('session:new', (session) => {
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
 
+  let firstTurnEnded = false;
+
   session.on('/pipeline-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `pipeline event: ${evt.type}`);
+
+    if (evt.type === 'turn_end' && !firstTurnEnded) {
+      firstTurnEnded = true;
+      log.info('first turn ended, scheduling CRM context injection in 3 seconds');
+
+      setTimeout(() => {
+        log.info('injecting CRM customer context');
+        session.updatePipeline({
+          type: 'inject_context',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                'CRM context update: The caller has been identified.',
+                'Customer name: Sarah Mitchell.',
+                'Account tier: Gold.',
+                'Recent purchases: wireless headphones (March 2026),',
+                'smart home hub (January 2026), portable speaker (November 2025).',
+                'Preferred payment method: Visa ending in 4821.',
+                'Open support ticket: delayed delivery on the smart home hub.',
+                'Use this information to personalize the conversation.',
+              ].join(' '),
+            },
+          ],
+        });
+      }, 3000);
+    }
   });
 
   session.on('/pipeline-complete', (evt: Record<string, unknown>) => {
@@ -111,4 +140,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/crm-injection listening');

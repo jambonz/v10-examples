@@ -23,23 +23,30 @@ const envVars = {
     description: 'Cartesia voice ID',
     default: '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc',
   },
+  TAVILY_API_KEY: {
+    type: 'string' as const,
+    description: 'Tavily API key for web search',
+    required: true,
+    obscure: true,
+  },
   SYSTEM_PROMPT: {
     type: 'string' as const,
     description: 'System prompt for the voice agent',
     uiHint: 'textarea' as const,
     default: [
-      'You are a helpful voice AI assistant.',
+      'You are a helpful voice AI assistant with web search capabilities.',
       'The user is interacting with you via voice,',
       'even if you perceive the conversation as text.',
-      'You eagerly assist users with their questions',
-      'by providing information from your extensive knowledge.',
+      'When the user asks about current events, news, or anything',
+      'that may require up-to-date information, use your available tools',
+      'to search the web and provide accurate answers.',
       'Your responses are concise, to the point,',
       'and use natural spoken English with proper punctuation.',
       'Never use markdown, bullet points, numbered lists,',
       'emojis, asterisks, or any special formatting.',
       'You are curious, friendly, and have a sense of humor.',
       'When the conversation begins,',
-      'greet the user in a helpful and friendly manner.',
+      'greet the user and let them know you can search the web.',
     ].join(' '),
   },
   NOISE_ISOLATION: {
@@ -68,6 +75,7 @@ svc.on('session:new', (session) => {
 
   const voice = session.data.env_vars?.CARTESIA_VOICE || envVars.CARTESIA_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
+  const tavilyApiKey = session.data.env_vars?.TAVILY_API_KEY;
   const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
@@ -101,6 +109,9 @@ svc.on('session:new', (session) => {
           ],
         },
       },
+      mcpServers: [
+        { url: `https://mcp.tavily.com/mcp/?tavilyApiKey=${tavilyApiKey}` },
+      ],
       bargeIn: { enable: true },
       turnDetection: 'krisp',
       earlyGeneration,
@@ -111,4 +122,4 @@ svc.on('session:new', (session) => {
     .send();
 });
 
-logger.info({ port }, 'jambonz pipeline/deepgram-cartesia listening');
+logger.info({ port }, 'jambonz pipeline/tavily-mcp listening');

@@ -9,7 +9,7 @@ Demonstrates:
 - Handling tool calls via the `toolHook` callback
 - Returning tool results with `session.sendToolOutput()`
 - Async tool execution (geocoding + weather API calls)
-- Selectable LLM vendor (OpenAI or Anthropic) via application variables
+- Selectable LLM vendor (OpenAI, Anthropic, Google, or Bedrock) via application variables
 
 ## Setup
 
@@ -23,7 +23,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable         | Required | Default | Description |
 |------------------|----------|---------|-------------|
-| `LLM_MODEL`     | No       | `gpt-5.4-mini` | LLM model (OpenAI or Anthropic) |
+| `LLM_MODEL`     | No       | `gpt-4.1-mini` | LLM model (OpenAI, Anthropic, Google, or Bedrock) |
 | `CARTESIA_VOICE` | No       | `9626c31c-...` | Cartesia voice ID |
 | `SYSTEM_PROMPT`  | No       | *(provided)* | System prompt for the voice agent |
 
