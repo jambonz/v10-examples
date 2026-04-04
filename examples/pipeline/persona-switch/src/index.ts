@@ -7,7 +7,7 @@ const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const LLM_CHOICES = [
   'openai:gpt-4.1-mini',
   'anthropic:claude-sonnet-4-6',
-  'google:gemini-2.5-flash-lite-preview-06-17',
+  'google:gemini-2.5-flash-lite',
   'bedrock:us.meta.llama4-scout-17b-instruct-v1:0',
 ];
 
@@ -78,7 +78,9 @@ const svc = makeService({ path: '/' });
 svc.on('session:new', (session) => {
   const log = logger.child({ call_sid: session.callSid });
   const llmChoice = session.data.env_vars?.LLM_MODEL || envVars.LLM_MODEL.default;
-  const [llmVendor, model] = llmChoice.split(':');
+  const colonIdx = llmChoice.indexOf(':');
+  const llmVendor = llmChoice.slice(0, colonIdx);
+  const model = llmChoice.slice(colonIdx + 1);
 
   const voice = session.data.env_vars?.CARTESIA_VOICE || envVars.CARTESIA_VOICE.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;

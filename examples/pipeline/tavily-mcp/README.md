@@ -43,3 +43,5 @@ npm start
 Configure your jambonz application to use the WebSocket URL `ws://your-server:3000/`.
 
 Note: Deepgram, Cartesia, and LLM provider credentials should be configured in the jambonz portal under speech provider settings. A Tavily API key is required and should be set as an application variable.
+
+**Important:** This example requires feature-server support for Streamable HTTP MCP transport. Tavily's remote MCP server uses Streamable HTTP (POST-based), not SSE. If your feature-server only supports SSE MCP transport, use the `web-search` example instead, which calls Tavily's REST API directly via toolHook.
