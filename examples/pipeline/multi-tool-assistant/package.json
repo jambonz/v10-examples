@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@jambonz/sdk": "^0.2.0",
-    "@jambonz/tools": "^0.1.0",
+    "@jambonz/tools": "^0.1.2",
     "pino": "^9.0.0"
   },
   "engines": {
