@@ -61,7 +61,7 @@ svc.on('session:new', (session) => {
 - `envVars` support `type`, `description`, `default`, `enum` (dropdown), `required`, `obscure` (secrets), `uiHint` (`textarea`, `filepicker`)
 - Action hooks: verb callbacks arrive as session events on the hook path (e.g., `session.on('/my-hook', handler)`)
 - `session.send()` for initial verb delivery, `session.reply()` for responding to action hooks
-- Pipeline examples derive LLM vendor from model name: `model.startsWith('claude') ? 'anthropic' : 'openai'`
+- Agent examples derive LLM vendor from model name: `model.startsWith('claude') ? 'anthropic' : 'openai'`
 
 ## Style
 

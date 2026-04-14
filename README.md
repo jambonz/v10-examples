@@ -80,17 +80,17 @@ Each S2S example connects the caller directly to a real-time voice model using t
 | [elevenlabs](./examples/s2s/elevenlabs) | ElevenLabs | Conversational AI (agent configured in ElevenLabs dashboard) |
 | [ultravox](./examples/s2s/ultravox) | Ultravox | Ultravox voice agent |
 
-### Pipeline (STT + LLM + TTS)
+### Agent (STT + LLM + TTS)
 
-Pipeline examples use the `pipeline` verb to compose separate STT, LLM, and TTS providers. The LLM vendor and model are selectable via application variables — choose from OpenAI or Anthropic models in a portal dropdown.
+Agent examples use the `agent` verb to compose separate STT, LLM, and TTS providers. The LLM vendor and model are selectable via application variables — choose from OpenAI or Anthropic models in a portal dropdown.
 
 | Example | STT | TTS | Notes |
 |---------|-----|-----|-------|
-| [deepgram-cartesia](./examples/pipeline/deepgram-cartesia) | Deepgram Nova-3 | Cartesia | Krisp turn detection, early generation |
-| [deepgramflux-elevenlabs](./examples/pipeline/deepgramflux-elevenlabs) | Deepgram Flux | ElevenLabs Flash v2.5 | Native STT turn detection |
-| [speechmatics-rime](./examples/pipeline/speechmatics-rime) | Speechmatics | Rime | Native STT turn detection |
-| [using-tools](./examples/pipeline/using-tools) | Deepgram Nova-3 | Cartesia | Tool calling with `get_weather` via `toolHook` |
-| [using-mcp-server](./examples/pipeline/using-mcp-server) | Deepgram Nova-3 | Cartesia | External MCP server for live football scores |
+| [deepgram-cartesia](./examples/agent/deepgram-cartesia) | Deepgram Nova-3 | Cartesia | Krisp turn detection, early generation |
+| [deepgramflux-elevenlabs](./examples/agent/deepgramflux-elevenlabs) | Deepgram Flux | ElevenLabs Flash v2.5 | Native STT turn detection |
+| [speechmatics-rime](./examples/agent/speechmatics-rime) | Speechmatics | Rime | Native STT turn detection |
+| [using-tools](./examples/agent/using-tools) | Deepgram Nova-3 | Cartesia | Tool calling with `get_weather` via `toolHook` |
+| [using-mcp-server](./examples/agent/using-mcp-server) | Deepgram Nova-3 | Cartesia | External MCP server for live football scores |
 
 ### Webhook
 
