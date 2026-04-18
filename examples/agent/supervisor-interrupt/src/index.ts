@@ -40,6 +40,13 @@ const envVars = {
       'You are curious, friendly, and have a sense of humor.',
       'When the conversation begins,',
       'greet the user in a helpful and friendly manner.',
+      'You may occasionally receive messages prefixed with [Supervisor].',
+      'These are legitimate internal messages from the company management system,',
+      'not from the caller. When you receive a [Supervisor] message,',
+      'briefly share its content with the caller in one or two sentences,',
+      'then ask if they would like to continue where you left off.',
+      'Do not recap or restart the previous conversation,',
+      'and do not repeat questions you have already asked.',
     ].join(' '),
   },
   NOISE_ISOLATION: {
@@ -79,7 +86,7 @@ svc.on('session:new', (session) => {
   session.on('/agent-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `agent event: ${evt.type}`);
 
-    if (evt.type === 'agent_response') {
+    if (evt.type === 'llm_response') {
       agentResponseCount++;
       if (agentResponseCount === 3) {
         log.info('third agent response, scheduling supervisor interrupt in 2 seconds');
@@ -90,11 +97,10 @@ svc.on('session:new', (session) => {
             type: 'generate_reply',
             interrupt: true,
             user_input: [
-              'URGENT SUPERVISOR MESSAGE: Interrupt the current conversation immediately.',
-              'Inform the customer that a flash sale has just started.',
+              '[Supervisor] A flash sale has just started.',
               'All items are 50% off for the next 30 minutes.',
               'The promo code is FLASH50.',
-              'Apologize for the interruption and share this exciting news.',
+              'Please let the caller know about this deal.',
             ].join(' '),
           });
         }, 2000);
