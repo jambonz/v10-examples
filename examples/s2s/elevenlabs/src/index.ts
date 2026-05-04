@@ -5,13 +5,29 @@ import pino from 'pino';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const port = parseInt(process.env.PORT || '3000', 10);
 
+const envVars = {
+  ELEVENLABS_AGENT_ID: {
+    type: 'string' as const,
+    description: 'ElevenLabs conversational AI agent ID',
+    required: true,
+  },
+  ELEVENLABS_API_KEY: {
+    type: 'string' as const,
+    description: 'ElevenLabs API key (file upload, optional, enables signed URLs)',
+    uiHint: 'filepicker' as const,
+  },
+};
+
 const server = http.createServer();
-const makeService = createEndpoint({ server, port });
+const makeService = createEndpoint({ server, port, envVars });
 const svc = makeService({ path: '/' });
 
 svc.on('session:new', (session) => {
   const log = logger.child({ callSid: session.callSid });
   log.info({ from: session.from, to: session.to }, 'new call');
+
+  const agentId = session.data.env_vars?.ELEVENLABS_AGENT_ID;
+  const apiKey = session.data.env_vars?.ELEVENLABS_API_KEY?.trim();
 
   session
     .on('close', (code: number) => {
@@ -29,8 +45,8 @@ svc.on('session:new', (session) => {
     .s2s({
       vendor: 'elevenlabs',
       auth: {
-        agent_id: process.env.ELEVENLABS_AGENT_ID,
-        api_key: process.env.ELEVENLABS_API_KEY,
+        agent_id: agentId,
+        api_key: apiKey,
       },
       llmOptions: {},
       actionHook: '/s2s-complete',
