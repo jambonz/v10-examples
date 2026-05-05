@@ -13,8 +13,9 @@ const envVars = {
   },
   ELEVENLABS_API_KEY: {
     type: 'string' as const,
-    description: 'ElevenLabs API key (file upload, optional, enables signed URLs)',
-    uiHint: 'filepicker' as const,
+    description: 'ElevenLabs API key',
+    required: true,
+    obscure: true,
   },
 };
 

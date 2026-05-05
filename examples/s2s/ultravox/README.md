@@ -20,7 +20,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable           | Default | Description |
 |--------------------|---------|-------------|
-| `ULTRAVOX_API_KEY` | —       | Ultravox API key (required, file upload) |
+| `ULTRAVOX_API_KEY` | —       | Ultravox API key (required) |
 
 ## Environment Variables
 

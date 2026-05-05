@@ -8,9 +8,9 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const envVars = {
   ULTRAVOX_API_KEY: {
     type: 'string' as const,
-    description: 'Ultravox API key (file upload)',
+    description: 'Ultravox API key',
     required: true,
-    uiHint: 'filepicker' as const,
+    obscure: true,
   },
 };
 

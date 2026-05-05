@@ -8,9 +8,9 @@ const port = parseInt(process.env.PORT || '3000', 10);
 const envVars = {
   OPENAI_API_KEY: {
     type: 'string' as const,
-    description: 'OpenAI API key (file upload)',
+    description: 'OpenAI API key',
     required: true,
-    uiHint: 'filepicker' as const,
+    obscure: true,
   },
 };
 

@@ -5,12 +5,18 @@ import pino from 'pino';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const port = parseInt(process.env.PORT || '3000', 10);
 
+const SYSTEM_PROMPT = `You are a friendly and helpful voice assistant.
+Keep your responses concise and conversational.
+You are speaking to the user via voice, so your output is read aloud by a TTS engine.
+Never use markdown, bullet points, numbered lists, emojis, asterisks,
+or any special formatting — write only what should be spoken.`;
+
 const envVars = {
   DEEPGRAM_API_KEY: {
     type: 'string' as const,
-    description: 'Deepgram API key (file upload)',
+    description: 'Deepgram API key',
     required: true,
-    uiHint: 'filepicker' as const,
+    obscure: true,
   },
 };
 
@@ -52,11 +58,7 @@ svc.on('session:new', (session) => {
             },
             think: {
               provider: { type: 'open_ai', model: 'gpt-4o-mini' },
-              prompt: 'You are a friendly and helpful voice assistant. '
-                + 'Keep your responses concise and conversational. '
-                + 'You are speaking to the user via voice, so your output is read aloud by a TTS engine. '
-                + 'Never use markdown, bullet points, numbered lists, emojis, asterisks, '
-                + 'or any special formatting — write only what should be spoken.',
+              prompt: SYSTEM_PROMPT,
             },
             speak: {
               provider: { type: 'deepgram', model: 'aura-2-thalia-en' },

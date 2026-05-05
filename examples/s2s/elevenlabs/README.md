@@ -20,7 +20,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 | Variable               | Default | Description |
 |------------------------|---------|-------------|
 | `ELEVENLABS_AGENT_ID`  | —       | ElevenLabs conversational AI agent ID (required) |
-| `ELEVENLABS_API_KEY`   | —       | ElevenLabs API key (optional, file upload, enables signed URLs) |
+| `ELEVENLABS_API_KEY`   | —       | ElevenLabs API key — (required) |
 
 ## Environment Variables
 

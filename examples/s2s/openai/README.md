@@ -21,7 +21,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable         | Default | Description |
 |------------------|---------|-------------|
-| `OPENAI_API_KEY` | —       | OpenAI API key (required, file upload) |
+| `OPENAI_API_KEY` | —       | OpenAI API key (required) |
 
 ## Environment Variables
 

@@ -20,7 +20,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable           | Default | Description |
 |--------------------|---------|-------------|
-| `DEEPGRAM_API_KEY` | —       | Deepgram API key (required, file upload) |
+| `DEEPGRAM_API_KEY` | —       | Deepgram API key (required) |
 
 ## Environment Variables
 

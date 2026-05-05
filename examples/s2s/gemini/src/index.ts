@@ -5,6 +5,10 @@ import pino from 'pino';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const port = parseInt(process.env.PORT || '3000', 10);
 
+const SYSTEM_PROMPT = `You are a friendly and helpful voice assistant.
+Keep your responses concise and conversational.
+You are speaking via voice, so respond in plain prose with no markdown.`;
+
 const envVars = {
   GOOGLE_API_KEY: {
     type: 'string' as const,
@@ -46,11 +50,7 @@ svc.on('session:new', (session) => {
       llmOptions: {
         setup: {
           systemInstruction: {
-            parts: [{
-              text: 'You are a friendly and helpful voice assistant. '
-                + 'Keep your responses concise and conversational. '
-                + 'You are speaking via voice, so respond in plain prose with no markdown.',
-            }],
+            parts: [{ text: SYSTEM_PROMPT }],
           },
           generationConfig: {
             speechConfig: {
