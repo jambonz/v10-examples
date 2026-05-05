@@ -14,13 +14,20 @@ Connects the caller to Google's Gemini 3.1 Flash Live model for a real-time voic
 npm install
 ```
 
-## Environment Variables
+## Application Variables
+
+Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable         | Default | Description |
 |------------------|---------|-------------|
-| `PORT`           | `3000`  | Port the WebSocket server listens on |
-| `LOG_LEVEL`      | `info`  | Pino log level (debug, info, warn, error) |
-| `GOOGLE_API_KEY` | —       | Google AI API key (required) |
+| `GOOGLE_API_KEY` | —       | Google AI API key (required, file upload) |
+
+## Environment Variables
+
+| Variable    | Default | Description |
+|-------------|---------|-------------|
+| `PORT`      | `3000`  | Port the WebSocket server listens on |
+| `LOG_LEVEL` | `info`  | Pino log level (debug, info, warn, error) |
 
 ## Running
 

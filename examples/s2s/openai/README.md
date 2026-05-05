@@ -15,13 +15,20 @@ Connects the caller to OpenAI's Realtime API for a real-time voice conversation 
 npm install
 ```
 
-## Environment Variables
+## Application Variables
+
+Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable         | Default | Description |
 |------------------|---------|-------------|
-| `PORT`           | `3000`  | Port the WebSocket server listens on |
-| `LOG_LEVEL`      | `info`  | Pino log level (debug, info, warn, error) |
 | `OPENAI_API_KEY` | —       | OpenAI API key (required) |
+
+## Environment Variables
+
+| Variable    | Default | Description |
+|-------------|---------|-------------|
+| `PORT`      | `3000`  | Port the WebSocket server listens on |
+| `LOG_LEVEL` | `info`  | Pino log level (debug, info, warn, error) |
 
 ## Running
 

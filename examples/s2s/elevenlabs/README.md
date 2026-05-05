@@ -13,14 +13,21 @@ Connects the caller to an ElevenLabs conversational AI agent for a real-time voi
 npm install
 ```
 
-## Environment Variables
+## Application Variables
+
+Configured in the jambonz portal and passed via `session.data.env_vars`:
 
 | Variable               | Default | Description |
 |------------------------|---------|-------------|
-| `PORT`                 | `3000`  | Port the WebSocket server listens on |
-| `LOG_LEVEL`            | `info`  | Pino log level (debug, info, warn, error) |
 | `ELEVENLABS_AGENT_ID`  | —       | ElevenLabs conversational AI agent ID (required) |
-| `ELEVENLABS_API_KEY`   | —       | ElevenLabs API key (optional, enables signed URLs) |
+| `ELEVENLABS_API_KEY`   | —       | ElevenLabs API key — (required) |
+
+## Environment Variables
+
+| Variable    | Default | Description |
+|-------------|---------|-------------|
+| `PORT`      | `3000`  | Port the WebSocket server listens on |
+| `LOG_LEVEL` | `info`  | Pino log level (debug, info, warn, error) |
 
 ## Running
 

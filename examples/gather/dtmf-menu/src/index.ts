@@ -34,6 +34,11 @@ svc.on('session:new', (session) => {
           .say({ text: `You selected ${department}. Thank you for calling. Goodbye.` })
           .hangup()
           .reply();
+      } else if (evt.reason === 'timeout') {
+        session
+          .say({ text: 'We did not receive any input. Goodbye.' })
+          .hangup()
+          .reply();
       } else {
         session
           .say({ text: 'Sorry, that is not a valid option.' })
@@ -46,8 +51,6 @@ svc.on('session:new', (session) => {
               text: 'Press 1 for sales. Press 2 for support. Press 3 for billing.',
             },
           })
-          .say({ text: 'We did not receive any input. Goodbye.' })
-          .hangup()
           .reply();
       }
     });
@@ -63,8 +66,6 @@ svc.on('session:new', (session) => {
         text: 'Welcome to Acme Corp. Press 1 for sales. Press 2 for support. Press 3 for billing.',
       },
     })
-    .say({ text: 'We did not receive any input. Goodbye.' })
-    .hangup()
     .send();
 });
 
