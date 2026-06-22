@@ -1,0 +1,20 @@
+{
+  "name": "@jambonz-examples/transfer-standalone",
+  "version": "1.0.0",
+  "description": "Standalone transfer verb: blind, warm-parked, warm-3way, and no-answer return",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "file:../../../../node-sdk/typescript",
+    "pino": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

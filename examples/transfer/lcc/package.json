@@ -1,0 +1,21 @@
+{
+  "name": "@jambonz-examples/transfer-lcc",
+  "version": "1.0.0",
+  "description": "Live Call Control transfer: park a caller, inject a transfer mid-call via REST",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "trigger": "tsx src/trigger-transfer.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "file:../../../../node-sdk/typescript",
+    "pino": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}

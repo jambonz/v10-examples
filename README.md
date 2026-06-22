@@ -63,6 +63,10 @@ npm run lint:fix
 | gather | [dtmf-menu](./examples/gather/dtmf-menu) | IVR menu with single-digit DTMF routing |
 | gather | [echo](./examples/gather/echo) | Speech recognition that echoes back with confidence scores |
 | dial | [outbound](./examples/dial/outbound) | Collect phone number via DTMF, then dial it |
+| transfer | [standalone](./examples/transfer/standalone) | The `transfer` verb: blind, warm parked/three-way, and no-answer → return |
+| transfer | [lcc](./examples/transfer/lcc) | Live Call Control: park a caller, then inject a transfer mid-call via REST |
+| handoff | [agent](./examples/handoff/agent) | Layer-1 transfer-to-human on the `agent` verb (Deepgram + OpenAI) |
+| handoff | [llm](./examples/handoff/llm) | Layer-1 transfer-to-human on the realtime `llm` verb (OpenAI gpt-realtime) |
 | conference | [basic](./examples/conference/basic) | Named conference room with join/leave beeps and status events |
 | listen | [audio-stream](./examples/listen/audio-stream) | Stream call audio to an external WebSocket server |
 | transcribe | [realtime](./examples/transcribe/realtime) | Live call transcription using Deepgram |
