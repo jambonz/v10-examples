@@ -1,25 +1,26 @@
-# transfer
+# transfer-apps
 
-Three jambonz examples for call-transfer scenarios, each a standalone Node.js/TypeScript app over WebSocket transport.
+Four jambonz examples for call-transfer scenarios, each a standalone Node.js/TypeScript app over WebSocket transport. The first three use the **`agent` verb's `handoff` property**; the last uses the standalone **`transfer` verb**.
 
 | App | Folder | What it does |
 |-----|--------|--------------|
-| Blind transfer | [`blind-transfer/`](blind-transfer) | Immediately bridges the caller to a target by dialing a new outbound leg (`dial`). Chosen over `sip:refer` because many carriers reject REFER. |
-| Warm transfer | [`warm-transfer/`](warm-transfer) | Dials a target, screens them (`confirmHook` + `gather`), and bridges the caller only if the target accepts. |
-| Three-way warm transfer | [`three-way-warm-transfer/`](three-way-warm-transfer) | Puts the caller in a `conference` and originates an outbound leg (REST API) that brings a specialist into the same room. |
+| Blind transfer | [`blind-transfer/`](blind-transfer) | An AI `agent` handles the caller, then hands off immediately — `handoff` with `mode: 'blind'`, `blindMethod: 'dial'` bridges a fresh outbound leg (chosen over `sip:refer`, which many carriers reject). |
+| Warm transfer | [`warm-transfer/`](warm-transfer) | `agent` with `handoff` (`mode: 'warm'`, `callerPresent: false`): the caller is parked while the agent briefs and screens the specialist (`confirm`), bridging only if they accept. |
+| Three-way warm transfer | [`three-way-warm-transfer/`](three-way-warm-transfer) | `agent` with `handoff` (`mode: 'warm'`, `callerPresent: true`): the caller joins a three-way call and the agent introduces them to the specialist — no `conference` verb or REST call needed. |
+| Transfer verb | [`transfer-verb/`](transfer-verb) | The standalone `transfer` verb (`mode: 'warm'`) — a warm transfer with brief and `confirm`, without wrapping it in the `agent` verb. |
 
 ## Prerequisites
 
 - Node.js 22+
+- `@jambonz/sdk` ≥ 0.8.3 (the `handoff` property and `transfer` verb)
 - A jambonz account and a reachable WebSocket URL for each app
-- The three-way app additionally needs an **account-scoped** jambonz API key and a publicly reachable URL — see its [README](three-way-warm-transfer/README.md)
 
 ## Running an app
 
 Each app is independent:
 
 ```bash
-cd blind-transfer      # or warm-transfer, three-way-warm-transfer
+cd blind-transfer      # or warm-transfer, three-way-warm-transfer, transfer-verb
 npm install
 npm start
 ```
