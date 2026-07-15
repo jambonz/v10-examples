@@ -1,0 +1,21 @@
+{
+  "name": "@jambonz-examples/three-way-warm-transfer",
+  "version": "1.0.0",
+  "description": "Three-way warm transfer via the agent verb's handoff property (callerPresent: true): the caller joins a three-way and hears the agent brief the human",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.8.3",
+    "dotenv": "^17.4.2",
+    "pino": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}
