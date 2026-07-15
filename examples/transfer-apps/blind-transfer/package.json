@@ -1,0 +1,20 @@
+{
+  "name": "@jambonz-examples/blind-transfer",
+  "version": "1.0.0",
+  "description": "Blind transfer via the agent verb's handoff property (mode: blind): an AI agent hands the caller off to a target immediately",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.8.3",
+    "pino": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}
