@@ -61,7 +61,7 @@ svc.on('session:new', (session) => {
           turn_detection: {
             type: 'semantic_vad',
             threshold: 0.5,
-            silence_duration_ms: 700,
+            silence_duration_ms: 800,
           },
         },
       },
