@@ -6,6 +6,7 @@ Connects the caller to Alibaba's Qwen Omni-Realtime API (the models behind Qwen-
 - The `qwen_s2s` verb (shortcut for `llm` with `vendor: 'qwen'`)
 - DashScope authentication: `apiKey` plus an optional `host` for workspace-scoped or China-region endpoints
 - `session_update` configuration (voice, instructions, `semantic_vad` turn detection)
+- `response_create` for an agent-first greeting (omit it and the agent waits for the caller to speak)
 - The `actionHook` callback for session completion
 
 ## Setup
