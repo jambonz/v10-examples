@@ -64,6 +64,12 @@ svc.on('session:new', (session) => {
             silence_duration_ms: 800,
           },
         },
+        /* the agent speaks first: response_create triggers an immediate
+         * response after the session is configured. Omit it and the agent
+         * stays silent until the caller speaks. */
+        response_create: {
+          instructions: 'Greet the caller warmly and ask how you can help them today.',
+        },
       },
       actionHook: '/s2s-complete',
     })
