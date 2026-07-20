@@ -79,6 +79,7 @@ Each S2S example connects the caller directly to a real-time voice model using t
 | [deepgram](./examples/s2s/deepgram) | Deepgram | Voice Agent with Nova-3 STT and GPT-4o-mini |
 | [elevenlabs](./examples/s2s/elevenlabs) | ElevenLabs | Conversational AI (agent configured in ElevenLabs dashboard) |
 | [ultravox](./examples/s2s/ultravox) | Ultravox | Ultravox voice agent |
+| [qwen](./examples/s2s/qwen) | Alibaba | Qwen Omni-Realtime (Qwen-Audio-3.0) with semantic VAD |
 
 ### Agent (STT + LLM + TTS)
 
