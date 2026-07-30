@@ -67,6 +67,7 @@ npm run lint:fix
 | listen | [audio-stream](./examples/listen/audio-stream) | Stream call audio to an external WebSocket server |
 | transcribe | [realtime](./examples/transcribe/realtime) | Live call transcription using Deepgram |
 | transcribe | [realtime-translator](./examples/transcribe/realtime-translator) | Bidirectional real-time translation using Microsoft STT, Google Translate, and dub tracks |
+| dialogflow | [airline-tools](./examples/dialogflow/airline-tools) | Dialogflow CX Playbook agent with client-side tool calls via `toolHook` |
 
 ### Speech-to-Speech (S2S)
 
