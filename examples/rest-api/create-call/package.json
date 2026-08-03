@@ -7,7 +7,7 @@
     "start": "tsx src/create-call.ts"
   },
   "dependencies": {
-    "@jambonz/sdk": "^0.2.0",
+    "@jambonz/sdk": "^0.10.1",
     "pino": "^9.0.0"
   },
   "engines": {
