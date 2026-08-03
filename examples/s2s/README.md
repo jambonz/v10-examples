@@ -8,3 +8,4 @@ Speech-to-speech examples using native provider integrations.
 | [elevenlabs](./elevenlabs) | ElevenLabs conversational AI |
 | [deepgram](./deepgram) | Deepgram speech-to-speech |
 | [google](./google) | Google speech-to-speech |
+| [xai](./xai) | xAI Grok speech-to-speech |
