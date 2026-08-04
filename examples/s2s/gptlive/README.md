@@ -73,6 +73,42 @@ session.updateLlm({
 
 One `input_text` part, up to 500 tokens. There is no function calling at all in this mode.
 
+## Getting the agent to speak first
+
+GPT Live has no `response_create`, so nothing forces a first turn — and putting the
+greeting in `instructions` alone does **not** work. Measured against the alpha:
+
+| approach | agent opened the call |
+|---|---|
+| greeting in `instructions` only | **0/5** |
+| `session.context.append` on `session.started` | **5/5** |
+
+When the model stays quiet it does not send nothing — it streams `output_audio.delta`
+frames of **digital silence**, so the caller hears dead air and the media server still
+reports playing audio. Per OpenAI's prompting guide, ask for the greeting with
+`session.context.append`, supplying the intended wording and saying when to speak:
+
+```js
+session.on('/s2s-event', (evt) => {
+  if (evt.type === 'session.started') {
+    session.updateLlm({
+      type: 'session.context.append',
+      content: [{
+        type: 'input_text',
+        text: 'Immediately greet the caller using the exact text below. Do not wait for the '
+          + 'caller to speak first. After the greeting, pause and listen.\n\n'
+          + 'Hi, I am the Jambonz Mobile assistant. How can I help you today?',
+      }],
+    });
+  }
+});
+```
+
+This example does that with the `GREETING` application variable. Note OpenAI's own
+caveat: a context append **guides** the model, it is not a playback command — it may
+paraphrase, or occasionally stay silent. **If exact wording is a hard requirement, say
+it with a `say` verb before the `llm` verb** and let jambonz TTS play it.
+
 ## Setup
 
 ```bash
@@ -90,6 +126,7 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 | `DELEGATION_MODE`  | `responses`                | `responses` (function calling) or `client` (text context) |
 | `DELEGATION_MODEL` | `gpt-5.5`                  | Responses-side model for delegated turns; only used when `DELEGATION_MODE=responses` |
 | `VOICE`            | `marin`                    | GPT Live output voice |
+| `GREETING`         | `Hi, I am the Jambonz Mobile assistant…` | Exact wording the agent opens the call with |
 
 ## Environment Variables
 

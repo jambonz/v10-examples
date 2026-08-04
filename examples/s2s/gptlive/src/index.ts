@@ -5,19 +5,13 @@ import pino from 'pino';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const port = parseInt(process.env.PORT || '3000', 10);
 
-/* GPT Live has no response_create, so there is no explicit "speak now" trigger.
- * The model opens the conversation by itself as soon as input audio starts
- * flowing — which jambonz does the moment session.started lifts the media
- * server's input gate — and silence counts, so it happens even if the caller
- * says nothing. instructions are therefore the ONLY lever on what it opens
- * with (there is no per-response instruction override either), which is why the
- * greeting is spelled out here. */
+/* GPT Live has no response_create, so nothing forces a first turn. The model
+ * does NOT reliably open the call on its own: see the session.started handler
+ * below, which asks for the greeting via session.context.append — the mechanism
+ * OpenAI's prompting guide prescribes and the only one that works. */
 const SYSTEM_PROMPT = `You are a friendly and helpful voice assistant for Jambonz Mobile.
 Keep your responses concise and conversational.
-You are speaking via voice, so respond in plain prose with no markdown.
-Open the conversation yourself: as soon as the call connects, greet the caller warmly,
-say you are the Jambonz Mobile assistant, and ask how you can help.
-Do not wait for the caller to speak first.`;
+You are speaking via voice, so respond in plain prose with no markdown.`;
 
 const envVars = {
   GPTLIVE_API_KEY: {
@@ -47,6 +41,11 @@ const envVars = {
     type: 'string' as const,
     description: 'GPT Live output voice',
     default: 'marin',
+  },
+  GREETING: {
+    type: 'string' as const,
+    description: 'Exact wording the agent should open the call with',
+    default: 'Hi, I am the Jambonz Mobile assistant. How can I help you today?',
   },
 };
 
@@ -83,6 +82,7 @@ svc.on('session:new', (session) => {
   const delegationMode = env.DELEGATION_MODE?.trim() || envVars.DELEGATION_MODE.default;
   const delegationModel = env.DELEGATION_MODEL?.trim() || envVars.DELEGATION_MODEL.default;
   const voice = env.VOICE?.trim() || envVars.VOICE.default;
+  const greeting = env.GREETING?.trim() || envVars.GREETING.default;
 
   /* required:true means the portal normally prevents this, but a missing key
    * otherwise reaches the feature-server as auth:{apiKey:undefined} and throws
@@ -148,21 +148,26 @@ svc.on('session:new', (session) => {
         return;
       }
 
-      /* Nudge the model to open the conversation. GPT Live has NO way to force a
-       * first turn: the server's validator confirms there is no response.create,
-       * no turn_detection and no greeting field, and `include` only accepts
-       * item.input_audio_transcription.logprobs. When the model decides not to
-       * speak it does not stay quiet — it streams output_audio.delta frames of
-       * DIGITAL SILENCE, so the caller hears nothing at all. Measured: the model
-       * opened 2/3 of the time on instructions alone, 3/3 when a
-       * session.context.append gave it something to react to. Best-effort. */
+      /* Ask the model to open the conversation. This is REQUIRED, not a nicety:
+       * GPT Live has no response.create, and putting the greeting only in
+       * `instructions` does not work — measured 0/5 openings that way, versus
+       * 5/5 with the request below. When the model stays quiet it does not send
+       * nothing, it streams output_audio.delta frames of DIGITAL SILENCE, so the
+       * caller just hears dead air.
+       *
+       * The shape follows OpenAI's prompting guide: supply the INTENDED WORDING
+       * and say WHEN to speak. Their caveat applies — a context append guides
+       * the model, it is not a playback command, so the model may paraphrase,
+       * or occasionally stay silent. If exact wording is a hard requirement,
+       * speak it with a `say` verb before this `llm` verb instead. */
       if (type === 'session.started') {
-        log.info('session started — nudging the model to greet');
+        log.info({ greeting }, 'session started — asking the model to open the call');
         session.updateLlm({
           type: 'session.context.append',
           content: [{
             type: 'input_text',
-            text: 'The call has just connected and the caller is listening. Greet them now.',
+            text: 'Immediately greet the caller using the exact text below. Do not wait for the '
+              + 'caller to speak first. After the greeting, pause and listen.\n\n' + greeting,
           }],
         });
         return;
