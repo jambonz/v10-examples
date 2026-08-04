@@ -66,10 +66,25 @@ svc.on('session:new', (session) => {
 
   const env = session.data.env_vars ?? {};
   const apiKey = env.GPTLIVE_API_KEY?.trim();
-  const model = env.GPTLIVE_MODEL?.trim() || 'gpt-live-1-boulder-alpha';
-  const delegationMode = env.DELEGATION_MODE?.trim() || 'responses';
-  const delegationModel = env.DELEGATION_MODEL?.trim() || 'gpt-5.5';
-  const voice = env.VOICE?.trim() || 'marin';
+  /* Read the fallbacks from envVars rather than repeating the literals: the
+   * alpha's model names will churn, and a second copy here would let the portal
+   * advertise one default while an unset deployment quietly used another. */
+  const model = env.GPTLIVE_MODEL?.trim() || envVars.GPTLIVE_MODEL.default;
+  const delegationMode = env.DELEGATION_MODE?.trim() || envVars.DELEGATION_MODE.default;
+  const delegationModel = env.DELEGATION_MODEL?.trim() || envVars.DELEGATION_MODEL.default;
+  const voice = env.VOICE?.trim() || envVars.VOICE.default;
+
+  /* required:true means the portal normally prevents this, but a missing key
+   * otherwise reaches the feature-server as auth:{apiKey:undefined} and throws
+   * there — the caller just hears the call drop. Say something instead. */
+  if (!apiKey) {
+    log.error('GPTLIVE_API_KEY is not set — cannot start a GPT Live session');
+    session
+      .say({ text: 'The GPT Live API key is not configured. Goodbye.' })
+      .hangup()
+      .send();
+    return;
+  }
 
   /* GPT Live's defining feature: everything the model wants from outside the
    * audio conversation arrives as a *delegation*, and the two modes are wired
@@ -162,10 +177,16 @@ svc.on('session:new', (session) => {
 
       try {
         const { location, scale = 'celsius' } = args;
+        /* Bound the upstream calls. The feature-server's stall watchdog is
+         * already disarmed by the time a function call is dispatched, so a
+         * hung fetch would leave the caller in dead air until the call's own
+         * time limit — undici applies no default request timeout. */
+        const signal = AbortSignal.timeout(5000);
 
         const geoRes = await fetch(
           'https://geocoding-api.open-meteo.com/v1/search'
-          + `?name=${encodeURIComponent(location)}&count=1&language=en&format=json`
+          + `?name=${encodeURIComponent(location)}&count=1&language=en&format=json`,
+          { signal }
         );
         const geoData = await geoRes.json() as { results?: { latitude: number; longitude: number }[] };
         if (!geoData.results?.length) {
@@ -176,7 +197,8 @@ svc.on('session:new', (session) => {
         const { latitude: lat, longitude: lng } = geoData.results[0];
         const wxRes = await fetch(
           'https://api.open-meteo.com/v1/forecast'
-          + `?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m&temperature_unit=${scale}`
+          + `?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m&temperature_unit=${scale}`,
+          { signal }
         );
         const weather = await wxRes.json() as {
           current: { temperature_2m: number; wind_speed_10m: number };
