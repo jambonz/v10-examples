@@ -148,6 +148,26 @@ svc.on('session:new', (session) => {
         return;
       }
 
+      /* Nudge the model to open the conversation. GPT Live has NO way to force a
+       * first turn: the server's validator confirms there is no response.create,
+       * no turn_detection and no greeting field, and `include` only accepts
+       * item.input_audio_transcription.logprobs. When the model decides not to
+       * speak it does not stay quiet — it streams output_audio.delta frames of
+       * DIGITAL SILENCE, so the caller hears nothing at all. Measured: the model
+       * opened 2/3 of the time on instructions alone, 3/3 when a
+       * session.context.append gave it something to react to. Best-effort. */
+      if (type === 'session.started') {
+        log.info('session started — nudging the model to greet');
+        session.updateLlm({
+          type: 'session.context.append',
+          content: [{
+            type: 'input_text',
+            text: 'The call has just connected and the caller is listening. Greet them now.',
+          }],
+        });
+        return;
+      }
+
       /* turn.* is a projection over transcript fragments — the readable view of
        * who said what. Everything else (usage, transcripts, response.*) is
        * logged at debug to keep the default output legible. */
