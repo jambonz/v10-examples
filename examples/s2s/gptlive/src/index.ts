@@ -5,9 +5,19 @@ import pino from 'pino';
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const port = parseInt(process.env.PORT || '3000', 10);
 
+/* GPT Live has no response_create, so there is no explicit "speak now" trigger.
+ * The model opens the conversation by itself as soon as input audio starts
+ * flowing — which jambonz does the moment session.started lifts the media
+ * server's input gate — and silence counts, so it happens even if the caller
+ * says nothing. instructions are therefore the ONLY lever on what it opens
+ * with (there is no per-response instruction override either), which is why the
+ * greeting is spelled out here. */
 const SYSTEM_PROMPT = `You are a friendly and helpful voice assistant for Jambonz Mobile.
 Keep your responses concise and conversational.
-You are speaking via voice, so respond in plain prose with no markdown.`;
+You are speaking via voice, so respond in plain prose with no markdown.
+Open the conversation yourself: as soon as the call connects, greet the caller warmly,
+say you are the Jambonz Mobile assistant, and ask how you can help.
+Do not wait for the caller to speak first.`;
 
 const envVars = {
   GPTLIVE_API_KEY: {
