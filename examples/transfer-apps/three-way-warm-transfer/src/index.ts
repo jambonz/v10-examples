@@ -34,10 +34,10 @@ const llmBaseUrl = process.env.LLM_BASE_URL;
 
 const systemPrompt =
   process.env.SYSTEM_PROMPT ||
-  `You are a friendly virtual receptionist. Greet the caller, ask what they need ` +
-  `help with, and once you understand their issue, bring in a human specialist ` +
-  `by calling the transfer_to_human tool. The caller stays on the line and will ` +
-  `hear you introduce them, so keep the introduction brief and natural.`;
+  'You are a friendly virtual receptionist. Greet the caller, ask what they need ' +
+  'help with, and once you understand their issue, bring in a human specialist ' +
+  'by calling the transfer_to_human tool. The caller stays on the line and will ' +
+  'hear you introduce them, so keep the introduction brief and natural.';
 
 const server = http.createServer();
 const makeService = createEndpoint({ server, port });

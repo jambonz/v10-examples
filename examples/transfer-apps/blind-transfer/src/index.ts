@@ -19,11 +19,11 @@ const llmBaseUrl = process.env.LLM_BASE_URL;
 
 const systemPrompt =
   process.env.SYSTEM_PROMPT ||
-  `You are a friendly virtual receptionist. Greet the caller, ask what they need ` +
-  `help with, and once you understand their issue, transfer them to a human ` +
-  `specialist by calling the transfer_to_human tool. Right before you call the ` +
-  `tool, always tell the caller you are transferring them now (e.g. "Transferring ` +
-  `you now, please hold."). Keep replies short and conversational.`;
+  'You are a friendly virtual receptionist. Greet the caller, ask what they need ' +
+  'help with, and once you understand their issue, transfer them to a human ' +
+  'specialist by calling the transfer_to_human tool. Right before you call the ' +
+  'tool, always tell the caller you are transferring them now (e.g. "Transferring ' +
+  'you now, please hold."). Keep replies short and conversational.';
 
 const server = http.createServer();
 const makeService = createEndpoint({ server, port });

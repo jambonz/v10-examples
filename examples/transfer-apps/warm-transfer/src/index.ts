@@ -23,13 +23,13 @@ const llmBaseUrl = process.env.LLM_BASE_URL;
 
 const systemPrompt =
   process.env.SYSTEM_PROMPT ||
-  `You are a friendly virtual receptionist. Greet the caller, ask what they need ` +
-  `help with, and once you understand their issue, transfer them to a human ` +
-  `specialist by calling the transfer_to_human tool. Keep replies short and ` +
-  `conversational. When you brief the specialist during a transfer, always ` +
-  `speak exactly two things: first one short sentence saying why the caller is ` +
-  `calling, then the literal words "Press one to connect, or hang up to decline." ` +
-  `Never omit that instruction.`;
+  'You are a friendly virtual receptionist. Greet the caller, ask what they need ' +
+  'help with, and once you understand their issue, transfer them to a human ' +
+  'specialist by calling the transfer_to_human tool. Keep replies short and ' +
+  'conversational. When you brief the specialist during a transfer, always ' +
+  'speak exactly two things: first one short sentence saying why the caller is ' +
+  'calling, then the literal words "Press one to connect, or hang up to decline." ' +
+  'Never omit that instruction.';
 
 const server = http.createServer();
 const makeService = createEndpoint({ server, port });
@@ -93,7 +93,10 @@ svc.on('session:new', (session) => {
         callerPresent: false, // caller is parked while the agent briefs the specialist
         target: [{ type: 'phone', number: target }],
         callerId: '+15085550101', // owned DID, or the carrier rejects the leg (target never rings)
-        brief: { template: 'In one sentence, tell the specialist why the caller is calling, then say exactly: "Press one to connect, or hang up to decline."' },
+        brief: {
+          template: 'In one sentence, tell the specialist why the caller is calling, ' +
+            'then say exactly: "Press one to connect, or hang up to decline."',
+        },
         confirm: { prompt: 'Press one to connect.', digit: '1' },
         onHoldHook: '/on-hold', // announcement played to the parked caller during the brief
         disposition: {
