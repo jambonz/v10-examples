@@ -63,6 +63,7 @@ npm run lint:fix
 | gather | [dtmf-menu](./examples/gather/dtmf-menu) | IVR menu with single-digit DTMF routing |
 | gather | [echo](./examples/gather/echo) | Speech recognition that echoes back with confidence scores |
 | dial | [outbound](./examples/dial/outbound) | Collect phone number via DTMF, then dial it |
+| dial | [livevox-passthrough](./examples/dial/livevox-passthrough) | Bridge an inbound call to a LiveVox trunk, forwarding `X-LiveVox`/`X-Prodigal` SIP headers |
 | conference | [basic](./examples/conference/basic) | Named conference room with join/leave beeps and status events |
 | listen | [audio-stream](./examples/listen/audio-stream) | Stream call audio to an external WebSocket server |
 | transcribe | [realtime](./examples/transcribe/realtime) | Live call transcription using Deepgram |
