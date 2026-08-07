@@ -1,0 +1,117 @@
+@startuml livevox-passthrough-call-flow
+title proAgent escalation to a human agent — Twilio → LiveKit → jambonz → LiveVox STG4
+
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign left
+skinparam maxMessageSize 220
+skinparam BoxPadding 8
+
+actor "PSTN caller" as Caller
+
+box "Ingress (test setup)" #F4F7FB
+  participant "Twilio\nSIP trunk" as Twilio
+end box
+
+box "LiveKit" #F7F4FB
+  participant "LiveKit SIP\nservice" as LKSIP
+  participant "proAgent\napplication" as ProAgent
+end box
+
+box "jambonz — eu.jambonz.io" #F4FBF6
+  participant "SBC\n(sbc-inbound /\nsbc-outbound)" as SBC
+  participant "feature-server" as FS
+  participant "livevox-passthrough\napp (ws :3101)" as App
+  participant "rtpengine" as RTP
+end box
+
+box "LiveVox" #FBF7F4
+  participant "LiveVox STG4" as LiveVox
+end box
+
+autonumber "<b>[00]"
+
+== 1. Inbound PSTN leg reaches proAgent ==
+
+Caller -> Twilio : PSTN call to DID
+Twilio -> LKSIP : INVITE (Twilio Elastic SIP trunk)
+LKSIP --> Twilio : 200 OK
+LKSIP -> ProAgent : participant joined (room event)
+note over Caller, ProAgent
+  Caller is now in a LiveKit room with proAgent.
+  Media: Caller <-> Twilio <-> LiveKit <-> proAgent
+end note
+
+== 2. proAgent decides to escalate to a human ==
+
+ProAgent -> ProAgent : escalation decision
+ProAgent -> LKSIP : CreateSIPParticipant\n(outbound trunk -> jambonz SIP URI)\nheaders: X-LiveVox-Destination,\nX-LiveVox-Session-Id, X-Prodigal-*
+
+== 3. jambonz receives the INVITE and picks the LiveVox trunk ==
+
+LKSIP -> SBC : INVITE sip:<number>@eu.jambonz.io\nX-LiveVox-Destination: +1899...\nX-LiveVox-Session-Id: ...\n(Diversion header ignored downstream)
+SBC --> LKSIP : 100 Trying
+note right of SBC
+  LiveKit is authorized as a **carrier** on
+  its source IP; the dialed DID is mapped to
+  the jambonz **application** whose URL is
+  ws://127.0.0.1:3101/
+end note
+SBC -> FS : route to application
+FS -> App : session:new\n(includes raw INVITE in data.sip.headers\nand portal env_vars)
+
+App -> App : resolve destination\n1. X-LiveVox-Destination\n2. X-Prodigal-Destination\n3. dialed number (to)\n4. env_vars.LIVEVOX_NUMBER\n(Diversion never consulted)
+App -> App : collect every inbound\nX-LiveVox* / X-Prodigal* header
+
+App -> FS : dial verb\nanswerOnBridge: true, **anchorMedia: false**, timeout: 30\ncallerId: **session.from** (original caller passed through)\nheaders: <forwarded X- headers>\ntarget: [{ type: phone, number, **trunk: env CARRIER** }]
+
+note over App, FS #FFF6D6
+  **This is where the LiveVox trunk is chosen.**
+  LiveKit does not and cannot select the trunk — it
+  only reaches a jambonz DID. Trunk selection is
+  `target[].trunk`, fed by the CARRIER application
+  variable (default "Livevox - staging"), so
+  staging -> production is a portal change.
+end note
+
+== 4. Outbound leg to LiveVox over mTLS ==
+
+FS -> SBC : outbound call request (trunk = CARRIER)
+SBC -> LiveVox : INVITE over **TLS (mTLS, client cert)**\nSDP offer: **SRTP-SDES**\nforwarded X-LiveVox* / X-Prodigal* headers
+LiveVox --> SBC : 100 Trying
+LiveVox --> SBC : 200 OK (answers to play announcement)
+SBC -> LiveVox : ACK
+
+SBC -> FS : outbound leg answered
+FS -> SBC : answer inbound leg (answerOnBridge)
+SBC --> LKSIP : 200 OK (LiveVox SDP relayed)
+LKSIP -> SBC : ACK
+
+note over RTP #FFE0E0
+  **anchorMedia: false** — rtpengine is released from
+  the media path once the legs are bridged. Media goes
+  LiveKit <-> LiveVox directly, so both ends must agree
+  on codecs and on crypto (SRTP-SDES vs plain RTP)
+  without jambonz translating between them.
+end note
+
+LiveVox -> LKSIP : RTP/SRTP announcement **direct**:\n"the number you have dialed\nis not in service"
+LKSIP -> ProAgent : audio of announcement
+
+== 5. LiveVox tears the leg down; BYE propagates back ==
+
+LiveVox -> SBC : BYE (announcement finished)
+SBC --> LiveVox : 200 OK
+SBC -> FS : outbound leg ended
+FS -> App : verb:hook /dial-complete\ndial_call_status, dial_sip_status, duration
+App -> FS : hangup
+FS -> SBC : end inbound leg
+SBC -> LKSIP : BYE
+LKSIP --> SBC : 200 OK
+
+LKSIP -> ProAgent : SIP participant disconnected
+ProAgent -> ProAgent : clean up call resources
+ProAgent -> LKSIP : (optional) close room / drop caller
+LKSIP -> Twilio : BYE
+Twilio -> Caller : call cleared
+
+@enduml
