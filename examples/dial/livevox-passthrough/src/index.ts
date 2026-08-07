@@ -17,11 +17,6 @@ const envVars = {
     default: 'Livevox - staging',
     jambonzResource: 'carriers' as const,
   },
-  CALLER_ID: {
-    type: 'string' as const,
-    description: 'Caller ID presented on the outbound INVITE',
-    default: '+15082139758',
-  },
   LIVEVOX_NUMBER: {
     type: 'string' as const,
     description: 'Last-resort destination number, used only when no X-LiveVox-Destination header ' +
@@ -84,8 +79,10 @@ svc.on('session:new', (session) => {
 
   const env = session.data.env_vars ?? {};
   const trunk = env.CARRIER || (envVars.CARRIER.default as string);
-  const callerId = env.CALLER_ID || (envVars.CALLER_ID.default as string);
   const fallbackNumber = env.LIVEVOX_NUMBER || undefined;
+
+  // Pass the original caller through to LiveVox rather than presenting a fixed number.
+  const callerId = session.from;
 
   const headers = session.data.sip?.headers ?? {};
   const forwardedHeaders = collectForwardedHeaders(headers);
@@ -147,7 +144,8 @@ svc.on('session:new', (session) => {
   session
     .dial({
       answerOnBridge: true,
-      anchorMedia: true,
+      // Let the two legs exchange media directly; jambonz stays in the signalling path only.
+      anchorMedia: false,
       timeout: 30,
       callerId,
       actionHook: '/dial-complete',

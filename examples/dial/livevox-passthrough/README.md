@@ -10,9 +10,15 @@ Demonstrates:
 - Forwarding custom SIP headers with the `dial` verb's `headers` property
 - Trunk selection with `target[].trunk`
 - `answerOnBridge: true` (don't answer the inbound leg until the outbound answers) and
-  `anchorMedia: true` (keep media through the jambonz media server)
-- Portal-configurable carrier/caller ID via `envVars` — including a `jambonzResource: 'carriers'`
-  dropdown populated from the account's configured carriers
+  `anchorMedia: false` (media flows directly between the two legs; jambonz stays in the
+  signalling path only)
+- Portal-configurable carrier via `envVars` — a `jambonzResource: 'carriers'` dropdown populated
+  from the account's configured carriers
+
+## Caller ID
+
+The outbound `callerId` is `session.from` — the original caller is passed straight through to
+LiveVox rather than being replaced by a fixed number.
 
 ## Destination resolution
 
@@ -54,7 +60,6 @@ Configured in the jambonz portal and passed via `session.data.env_vars`:
 | Variable         | Required | Default             | Description |
 |------------------|----------|---------------------|-------------|
 | `CARRIER`        | No       | `Livevox - staging` | Outbound SIP trunk to route to. Rendered as a dropdown of the account's carriers — switch staging → production here |
-| `CALLER_ID`      | No       | `+15082139758`      | Caller ID presented on the outbound INVITE |
 | `LIVEVOX_NUMBER` | No       | *(empty)*           | Last-resort destination, used only when no destination header is present and the dialed number is unusable |
 
 ## Environment Variables
@@ -85,7 +90,7 @@ INFO: new call
     destination: "+15083334444"
     destinationSource: "x-livevox-destination"
     trunk: "Livevox - staging"
-    callerId: "+15082139758"
+    callerId: "+15551112222"
     forwardedHeaders: {
       "x-livevox-destination": "+15083334444",
       "x-livevox-session-id": "abc123"
