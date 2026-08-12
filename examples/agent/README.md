@@ -5,6 +5,7 @@ Multi-provider AI agent examples using the `agent` verb.
 | Example | Description |
 |---------|-------------|
 | [deepgram-cartesia](./deepgram-cartesia) | Basic agent: Deepgram STT, Cartesia TTS, configurable LLM |
+| [deepgramflux](./deepgramflux) | Deepgram Flux for both STT and TTS |
 | [deepgramflux-elevenlabs](./deepgramflux-elevenlabs) | Deepgram Flux STT + ElevenLabs TTS |
 | [speechmatics-rime](./speechmatics-rime) | Speechmatics STT + Rime TTS |
 | [using-tools](./using-tools) | Tool calling with weather lookup |

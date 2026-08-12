@@ -1,7 +1,7 @@
 {
-  "name": "@jambonz-examples/gather-echo-deepgramflux",
+  "name": "@jambonz-examples/agent-deepgramflux",
   "version": "1.0.0",
-  "description": "Speech echo example using Deepgram Flux for both STT and TTS",
+  "description": "Voice agent using Deepgram Flux for both STT and TTS",
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts"
