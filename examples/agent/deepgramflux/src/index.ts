@@ -12,6 +12,19 @@ const fluxTtsModels = [
   'flux-drew-en', 'flux-renee-en', 'flux-marcus-en', 'flux-sharon-en',
 ];
 
+/* Model prefix determines the LLM vendor. Plain ids (kimi-k2.5, grok-4.3,
+ * glm-4.7) target the vendor's native API with a BYO credential; the
+ * dotted ids (moonshotai.kimi-k2.5, xai.grok-4.3, zai.glm-4.7) are the
+ * jambonz-hosted (Bedrock Mantle) model ids — use those when the model is
+ * enabled on the account's hosted-inference page instead of a BYO key. */
+const llmVendorFor = (model: string): string => {
+  if (model.startsWith('claude')) return 'anthropic';
+  if (model.startsWith('kimi') || model.startsWith('moonshotai.')) return 'moonshot';
+  if (model.startsWith('glm') || model.startsWith('zai.')) return 'zai';
+  if (model.startsWith('grok') || model.startsWith('xai.')) return 'xai';
+  return 'openai';
+};
+
 const envVars = {
   LLM_MODEL: {
     type: 'string' as const,
@@ -19,6 +32,10 @@ const envVars = {
     enum: [
       'claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-opus-4-6',
       'gpt-5.4-mini', 'gpt-5.4-nano', 'gpt-5.4', 'gpt-4.1-mini', 'gpt-4.1',
+      'kimi-k2.5', 'kimi-k2.6', 'moonshotai.kimi-k2.5',
+      'grok-4.3', 'xai.grok-4.3',
+      'glm-4.7', 'glm-4.7-flash', 'glm-5.2',
+      'zai.glm-4.7', 'zai.glm-4.7-flash', 'zai.glm-5',
     ],
     default: 'claude-sonnet-4-6',
   },
@@ -69,7 +86,7 @@ const svc = makeService({ path: '/' });
 svc.on('session:new', (session) => {
   const log = logger.child({ call_sid: session.callSid });
   const model = session.data.env_vars?.LLM_MODEL || envVars.LLM_MODEL.default;
-  const llmVendor = model.startsWith('claude') ? 'anthropic' : 'openai';
+  const llmVendor = llmVendorFor(model);
   const ttsModel = session.data.env_vars?.DEEPGRAM_FLUX_TTS_MODEL || envVars.DEEPGRAM_FLUX_TTS_MODEL.default;
   const systemPrompt = session.data.env_vars?.SYSTEM_PROMPT || envVars.SYSTEM_PROMPT.default;
   const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION

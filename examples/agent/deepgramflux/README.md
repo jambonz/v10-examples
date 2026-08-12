@@ -13,7 +13,21 @@ Flux is Deepgram's conversation-native model family: the recognizer is turn-base
 ## Prerequisites
 
 - A **Deepgram Flux** speech credential in the jambonz portal (Speech services → vendor "Deepgram Flux") with both "Use for text-to-speech" and "Use for speech-to-text" enabled. Only the API key is needed for the hosted Deepgram service.
-- An Anthropic or OpenAI LLM credential depending on the model you pick.
+- An LLM credential for the vendor of the model you pick (Anthropic, OpenAI, Moonshot, xAI, or Z.ai), **or** the model enabled on the account's jambonz-hosted inference page.
+
+## LLM model selection
+
+The `LLM_MODEL` prefix picks the vendor:
+
+| Prefix | Vendor | Examples |
+|--------|--------|----------|
+| `claude` | anthropic | `claude-sonnet-4-6`, `claude-opus-4-6` |
+| `gpt` | openai | `gpt-5.4`, `gpt-4.1-mini` |
+| `kimi` / `moonshotai.` | moonshot | `kimi-k2.5`, `moonshotai.kimi-k2.5` |
+| `grok` / `xai.` | xai | `grok-4.3`, `xai.grok-4.3` |
+| `glm` / `zai.` | zai | `glm-4.7`, `glm-4.7-flash`, `zai.glm-4.7` |
+
+Plain ids (`kimi-k2.5`, `grok-4.3`, `glm-4.7`, `glm-4.7-flash`) target the vendor's native API and need a BYO API-key credential. The dotted ids (`moonshotai.kimi-k2.5`, `xai.grok-4.3`, `zai.glm-4.7`, `zai.glm-4.7-flash`) are the jambonz-hosted model ids — use those when the model is toggled on under the account's hosted-inference (suppliers) page and billed from the wallet. Moonshot/xAI/Z.ai vendors require a recent feature-server with `@jambonz/llm` 0.6+.
 
 ## Setup
 
@@ -27,7 +41,7 @@ npm install
 |---------------------------|---------------------|-------------|
 | `PORT`                    | `3000`              | Port the WebSocket server listens on |
 | `LOG_LEVEL`               | `info`              | Pino log level |
-| `LLM_MODEL`               | `claude-sonnet-4-6` | LLM model (Claude → anthropic, otherwise openai) |
+| `LLM_MODEL`               | `claude-sonnet-4-6` | LLM model; the prefix picks the vendor (see below) |
 | `DEEPGRAM_FLUX_TTS_MODEL` | `flux-alexis-en`    | Flux TTS model (voice) |
 | `SYSTEM_PROMPT`           | (built-in)          | System prompt for the agent |
 | `NOISE_ISOLATION`         | `off`               | `off`, `krisp`, or `rnnoise` |
