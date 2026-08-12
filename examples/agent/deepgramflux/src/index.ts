@@ -76,6 +76,11 @@ const envVars = {
     enum: ['on', 'off'],
     default: 'on',
   },
+  EAGER_EOT_THRESHOLD: {
+    type: 'string' as const,
+    description: 'Flux eager end-of-turn threshold (0.3-0.9); required for early generation to fire',
+    default: '0.5',
+  },
 };
 
 const port = parseInt(process.env.PORT || '3000', 10);
@@ -92,6 +97,8 @@ svc.on('session:new', (session) => {
   const noiseIsolation = (session.data.env_vars?.NOISE_ISOLATION
     || envVars.NOISE_ISOLATION.default) as 'krisp' | 'rnnoise' | 'off';
   const earlyGeneration = (session.data.env_vars?.EARLY_GENERATION || envVars.EARLY_GENERATION.default) === 'on';
+  const eagerEotThreshold = parseFloat(
+    session.data.env_vars?.EAGER_EOT_THRESHOLD || envVars.EAGER_EOT_THRESHOLD.default);
 
   session.on('/agent-event', (evt: Record<string, unknown>) => {
     log.info({ payload: evt }, `agent event: ${evt.type}`);
@@ -106,6 +113,10 @@ svc.on('session:new', (session) => {
     .agent({
       stt: {
         vendor: 'deepgramflux',
+        /* eagerEotThreshold makes Flux emit EagerEndOfTurn events, which is
+         * what earlyGeneration preflights the LLM on — without it preflight
+         * never fires */
+        ...(earlyGeneration && { deepgramOptions: { eagerEotThreshold } }),
       },
       tts: {
         vendor: 'deepgramflux',

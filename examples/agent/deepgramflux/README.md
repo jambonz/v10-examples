@@ -46,6 +46,7 @@ npm install
 | `SYSTEM_PROMPT`           | (built-in)          | System prompt for the agent |
 | `NOISE_ISOLATION`         | `off`               | `off`, `krisp`, or `rnnoise` |
 | `EARLY_GENERATION`        | `on`                | Speculative LLM preflight for lower latency |
+| `EAGER_EOT_THRESHOLD`     | `0.5`               | Flux eager end-of-turn threshold (0.3-0.9); required for early generation to fire |
 
 All of these are exposed as portal-discoverable application variables (`env_vars`).
 
