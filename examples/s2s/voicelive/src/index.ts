@@ -96,6 +96,12 @@ svc.on('session:new', (session) => {
           input_audio_noise_reduction: {
             type: 'azure_deep_noise_suppression',
           },
+          // Azure speech to text is automatic only for NON-multimodal models, so a
+          // native-audio model such as gpt-realtime-2.1 delivers no caller
+          // transcripts unless you ask for them here.
+          input_audio_transcription: {
+            model: 'azure-speech',
+          },
         },
         response_create: {
           instructions: 'Greet the caller warmly, introduce yourself as the Jambonz Mobile assistant, '

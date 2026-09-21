@@ -9,6 +9,7 @@ Connects the caller to the [Azure Voice Live API](https://learn.microsoft.com/en
 - An Azure TTS voice declared as an object (`{name, type: 'azure-standard', temperature}`) rather than an id string
 - `azure_semantic_vad` with `remove_filler_words` — Azure-only turn detection that ends a turn on meaning rather than volume
 - `azure_deep_noise_suppression` — server-side noise suppression
+- `input_audio_transcription` — set explicitly, because Azure speech to text is automatic only for non-multimodal models; with `gpt-realtime-2.1` you get no caller transcripts without it
 - `response_create` for an agent-first greeting — also required (the feature-server throws if either key is missing from `llmOptions`)
 - API key authentication
 - The `actionHook` callback for session completion
