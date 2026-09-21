@@ -81,6 +81,7 @@ Each S2S example connects the caller directly to a real-time voice model using t
 | [ultravox](./examples/s2s/ultravox) | Ultravox | Ultravox voice agent |
 | [qwen](./examples/s2s/qwen) | Alibaba | Qwen Omni-Realtime (Qwen-Audio-3.0) with semantic VAD |
 | [gptlive](./examples/s2s/gptlive) | OpenAI | GPT Live (alpha) — delegation-based tool calling and client-supplied context |
+| [voicelive](./examples/s2s/voicelive) | Microsoft | Azure Voice Live — Azure HD voices, semantic VAD, server-side noise suppression |
 
 ### Agent (STT + LLM + TTS)
 
