@@ -1,0 +1,20 @@
+{
+  "name": "@jambonz-examples/transfer-warm",
+  "version": "1.0.0",
+  "description": "Warm transfer with call screening: dial a target, accept or decline, then bridge",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@jambonz/sdk": "^0.2.0",
+    "pino": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
+  }
+}
