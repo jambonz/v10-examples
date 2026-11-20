@@ -39,24 +39,30 @@ svc.on('session:new', (session) => {
   session
     .s2s({
       vendor: 'openai',
-      model: 'gpt-4o-realtime-preview',
+      model: 'gpt-realtime-2.1',
       auth: {
         apiKey,
       },
       llmOptions: {
         response_create: {
-          modalities: ['text', 'audio'],
-          instructions: 'You are a friendly and helpful voice assistant. '
-            + 'Keep your responses concise and conversational.',
-          voice: 'alloy',
+          output_modalities: ['audio'],
+          instructions: 'Greet the caller and ask how you can help.',
         },
         session_update: {
-          input_audio_transcription: { model: 'whisper-1' },
-          turn_detection: {
-            type: 'server_vad',
-            threshold: 0.8,
-            prefix_padding_ms: 300,
-            silence_duration_ms: 500,
+          type: 'realtime',
+          instructions: 'You are a friendly and helpful voice assistant. '
+            + 'Keep your responses concise and conversational.',
+          audio: {
+            input: {
+              transcription: { model: 'gpt-live-transcribe' },
+              turn_detection: {
+                type: 'server_vad',
+                threshold: 0.8,
+                prefix_padding_ms: 300,
+                silence_duration_ms: 500,
+              },
+            },
+            output: { voice: 'alloy' },
           },
         },
       },
